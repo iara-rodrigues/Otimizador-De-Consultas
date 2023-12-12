@@ -4,10 +4,11 @@ import Dor from "../database/schemas/RegisterPain";
 class RegistrarDorController {
   async find(request: Request, response: Response) {
     try {
-      const dores = await Dor.find();
+      const { userId } = request.params;
+      const dores = await Dor.find({ user: userId });
       return response.json(dores);
     } catch (error) {
-      return response.status(500).send({
+      return response.status(404).send({
         error: "Select failed",
         message: error,
       });
@@ -15,31 +16,20 @@ class RegistrarDorController {
   }
 
   async create(request: Request, response: Response) {
+    const { userId } = request.params;
     const { name, desc, data } = request.body;
 
     try {
-      const registrationExists = await Dor.findOne({
-        name,
-        desc,
-        data,
-      });
-
-      if (registrationExists) {
-        return response.status(400).json({
-          error: "Ooops",
-          message: "Pain registration already exists",
-        });
-      }
-
       const dor = await Dor.create({
         name,
         desc,
         data,
+        user: userId,
       });
 
       return response.json(dor);
     } catch (error) {
-      return response.status(500).send({
+      return response.status(400).send({
         error: "Registration failed",
         message: error,
       });
@@ -61,7 +51,7 @@ class RegistrarDorController {
       const dor = await Dor.deleteOne({ _id });
       return response.json({ dor });
     } catch (error) {
-      return response.status(500).send({
+      return response.status(304).send({
         error: "Delete failed",
         message: error,
       });
@@ -107,7 +97,7 @@ class RegistrarDorController {
 
       return response.json(dor);
     } catch (error) {
-      return response.status(500).send({
+      return response.status(400).send({
         error: "Update failed",
         message: error,
       });
@@ -115,9 +105,10 @@ class RegistrarDorController {
   }
 
   async findEstatistic(request: Request, response: Response) {
-    const { dataInicio, dataFinal } = request.params;
+    const { userId, dataInicio, dataFinal } = request.params;
     try {
       const pain = await Dor.find({
+        user: userId,
         data: {
           $gte: dataInicio,
           $lte: dataFinal,
@@ -152,7 +143,7 @@ class RegistrarDorController {
 
       return response.json(objetos);
     } catch (error) {
-      return response.status(500).send({
+      return response.status(404).send({
         error: "Select failed",
         message: error,
       });

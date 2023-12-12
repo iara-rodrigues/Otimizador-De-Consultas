@@ -1,12 +1,33 @@
-import mongoose from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
 
-const Dor = new mongoose.Schema({
+export interface DorModel extends Document {
+  name: string;
+  user: Schema.Types.ObjectId | string;
+}
+
+const DorSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
     unique: true,
     lowercase: true,
   },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
 });
 
-export default mongoose.model("Dor", Dor);
+const Dor = mongoose.model<DorModel>("Dor", DorSchema);
+
+export default Dor;
+
+// import mongoose from "mongoose";
+
+// const Dor = new mongoose.Schema({
+//   name: {
+//     type: String,
+//     required: true,
+//     unique: true,
+//     lowercase: true,
+//   },
+// });
+
+// export default mongoose.model("Dor", Dor);

@@ -4,10 +4,13 @@ import Dor from "../database/schemas/Dor";
 class DorController {
   async find(request: Request, response: Response) {
     try {
-      const dores = await Dor.find();
+      const { userId } = request.params;
+
+      const dores = await Dor.find({ user: userId });
+
       return response.json(dores);
     } catch (error) {
-      return response.status(500).send({
+      return response.status(404).send({
         error: "Select failed",
         message: error,
       });
@@ -15,23 +18,25 @@ class DorController {
   }
 
   async create(request: Request, response: Response) {
+    const { userId } = request.params;
+
     const { name } = request.body;
 
     try {
       const dorExists = await Dor.findOne({ name });
 
-      if (dorExists) {
-        return response.status(400).json({
-          error: "Ooops",
-          message: "Pain already exists",
-        });
-      }
+      // if (dorExists) {
+      //   return response.status(400).json({
+      //     error: "Ooops",
+      //     message: "Pain already exists",
+      //   });
+      // }
 
-      const dor = await Dor.create({ name });
+      const dor = await Dor.create({ name, user: userId });
 
       return response.json(dor);
     } catch (error) {
-      return response.status(500).send({
+      return response.status(400).send({
         error: "Registration failed",
         message: error,
       });
@@ -53,7 +58,7 @@ class DorController {
       const dor = await Dor.deleteOne({ _id });
       return response.json({ _id });
     } catch (error) {
-      return response.status(500).send({
+      return response.status(304).send({
         error: "Delete failed",
         message: error,
       });
@@ -87,7 +92,7 @@ class DorController {
 
       return response.json({ name });
     } catch (error) {
-      return response.status(500).send({
+      return response.status(404).send({
         error: "Update failed",
         message: error,
       });

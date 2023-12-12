@@ -1,9 +1,8 @@
 import { Link } from "react-router-dom";
 import ImgPath from "../img/home.gif";
 
-function home() {
+function Home() {
   return (
-    //<div className="menu-wrap">
     <>
       <div style={{ backgroundColor: "#ADD8E6" }}>
         <div
@@ -118,4 +117,4 @@ function home() {
   );
 }
 
-export default home;
+export default Home;

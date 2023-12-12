@@ -128,3 +128,10 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+#Cópias que fiz dos códigos
+.frontend/my-app/src/components/cpaddMedicine.tsx
+.frontend/my-app/src/components/cpaddPain.tsx
+.frontend/my-app/src/components/cphome.tsx
+.frontend/my-app/src/components/cpregisterMedicine.tsx
+.frontend/my-app/src/components/cpregisterPain.tsx

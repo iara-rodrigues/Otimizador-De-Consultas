@@ -1,8 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
-//import { stringify } from "querystring";
 import React, { useEffect, useState } from "react";
-//import ListGroup from "react-bootstrap/esm/ListGroup";
 import { faEdit, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { format } from "date-fns";
 import NavBarComponent from "./navBarComponent";
@@ -10,42 +8,74 @@ import NavBarComponent from "./navBarComponent";
 interface GetDor {
   _id: number;
   name: string;
-}
-
-interface GetRegisterDores {
-  _id: number;
-  name: string;
-  desc: string;
-  data: Date;
+  user: string;
 }
 
 function RegisterPain() {
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
   const [data, setDate] = useState("");
-  const [dadosRegister, setDadosRegister] = useState<GetRegisterDores[]>([]);
-
+  //const [dadosRegister, setDadosRegister] = useState<GetRegisterDores[]>([]);
+  const [dadosRegister, setDadosRegister] = useState<any[]>([]);
   const [tipo, setTipo] = useState("");
   const [dadosEdit, setDadosEdit] = useState<any[]>([]);
   const [id, setId] = useState("");
+  const [idUser, setIdUser] = useState("");
 
-  const fetchData = async () => {
+  const getId = async () => {
     try {
-      const response = await fetch("http://localhost:3000/registrosDor");
-      const data = await response.json();
-      setDadosRegister(data);
+      const response = await axios.get("http://localhost:3000/profile", {
+        headers: {
+          Authorization: `Token ${localStorage.getItem("token")}`,
+        },
+      });
+      const user = response.data;
+      setIdUser(user._id);
     } catch (error) {
       console.error("Erro ao obter os dados:", error);
     }
   };
 
   useEffect(() => {
+    console.log("user getId: ", idUser);
+  }, [idUser]);
+
+  const getD = async () => {
+    try {
+      //await getId();
+      const response = await axios.get(
+        `http://localhost:3000/registrosDor/${idUser}`
+      );
+      //const response = await axios.get("http://localhost:3000/dores");
+      const dores = await response.data;
+      setDadosEdit(dores);
+    } catch (error) {
+      window.alert(
+        "Ocorreu um erro ao obter dados. Por favor, tente novamente."
+      );
+      console.error("Erro ao obter os dados:", error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:3000/registrosDor/${idUser}`
+        );
+        const registers = await response.json();
+        setDadosEdit(registers);
+      } catch (error) {
+        console.error("Erro ao obter os dados:", error);
+      }
+    };
     fetchData();
-  }, []);
+  }, [setDadosRegister, idUser]);
 
   async function getRegister() {
     try {
-      const response = await axios.get("http://localhost:3000/dores");
+      //await getId();
+      const response = await axios.get(`http://localhost:3000/dores/${idUser}`);
       console.log(response);
     } catch (error) {
       console.error(error);
@@ -55,22 +85,21 @@ function RegisterPain() {
   console.log(getRegister());
 
   //COMEÇA A PARTE DA EDIÇÃO
-  const fetchRegisterDores = async () => {
-    try {
-      const response = await fetch("http://localhost:3000/registrosDor");
-      const registers = await response.json();
-      setDadosEdit(registers);
-    } catch (error) {
-      console.error("Erro ao obter os dados:", error);
-    }
-  };
-
-  useEffect(() => {
-    //fetchData();
-    fetchRegisterDores();
-  }, [setDadosEdit]);
+  // const fetchRegisterDores = async () => {
+  //   try {
+  //     //await getId();
+  //     const response = await fetch(
+  //       `http://localhost:3000/registrosDor/${idUser}`
+  //     );
+  //     const registers = await response.json();
+  //     setDadosEdit(registers);
+  //   } catch (error) {
+  //     console.error("Erro ao obter os dados:", error);
+  //   }
+  // };
 
   const novosDados = async () => {
+    await getId();
     setTipo("novo");
     limparDados(1);
   };
@@ -104,8 +133,6 @@ function RegisterPain() {
     register[index].data = await data;
     register[index].desc = await desc;
     setDadosEdit(register);
-    //fetchRegisterDores();
-    //limparDados();
   };
 
   const gravaDores = async () => {
@@ -122,16 +149,17 @@ function RegisterPain() {
           })
           .then((response) => {
             atualizaListaRegistrosEditada(response);
-            fetchRegisterDores();
+            //fetchRegisterDores();
+            getD();
           })
           //.then(() => fetchDores())
-          .catch((err) => console.log(err));
-        // fetchDores();
-        // } catch (error) {
-        //   console.error(error);
-        // }
+          .catch((err) => [
+            console.log(err),
+            window.alert(
+              "Ocorreu um erro ao salvar dados. Por favor, tente novamente."
+            ),
+          ]);
       }
-      //fetchData();
     } else {
       console.log("Preencha os campos");
     }
@@ -146,28 +174,31 @@ function RegisterPain() {
       console.log(`Item com ID ${_id} excluído com sucesso!`);
     } catch (error) {
       console.error("Erro ao excluir o item:", error);
+      window.alert(
+        "Ocorreu um erro ao excluir dados. Por favor, tente novamente."
+      );
     }
-    //fetchData();
-    fetchRegisterDores();
+    getD();
   };
 
   const handleRegisterPain = async (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
     console.log("click", name, desc, data);
+    try {
+      await axios.post(
+        `http://localhost:3000/registrarDor/${idUser}`,
+        JSON.stringify({ name, desc, data }),
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    } catch (error) {
+      window.alert(
+        "Ocorreu um erro ao salvar dados. Por favor, tente novamente."
+      );
+    }
 
-    //try {
-    let response: any;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    response = await axios.post(
-      "http://localhost:3000/registrarDor",
-      JSON.stringify({ name, desc, data }),
-      {
-        headers: { "Content-Type": "application/json" },
-      }
-    );
-
-    // fetchData();
-    fetchRegisterDores();
+    getD();
   };
 
   const [dados, setDados] = useState<GetDor[]>([]);
@@ -175,7 +206,7 @@ function RegisterPain() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("http://localhost:3000/dores");
+        const response = await fetch(`http://localhost:3000/dores/${idUser}`);
         const data = await response.json();
         setDados(data);
       } catch (error) {
@@ -184,7 +215,7 @@ function RegisterPain() {
     };
 
     fetchData();
-  }, []);
+  }, [idUser]);
 
   return (
     <>
@@ -234,7 +265,8 @@ function RegisterPain() {
                     type="date"
                     className="form-control bg-light"
                     name="date"
-                    value={data.split("T")[0].split("-").reverse().join("/")}
+                    //value={data.split("T")[0].split("-").reverse().join("/")}
+                    value={data}
                     placeholder="Data"
                     required
                     onChange={(event) => setDate(event.target.value)}
@@ -303,15 +335,23 @@ function RegisterPain() {
                   <div className="card h-100">
                     <div className="card-body">
                       <div className="d-flex justify-content-between">
-                        {dores.desc == "" ? (
+                        {dores.desc === "" ? (
                           <h6 className="card-title pt-4">
-                            Nome: {dores.name}, Data:{" "}
-                            {format(new Date(dores.data), "dd/MM/yyyy")}
+                            Nome: {dores.name}, Data:
+                            {dores.data
+                              .split("T")[0]
+                              .split("-")
+                              .reverse()
+                              .join("/")}
                           </h6>
                         ) : (
                           <h6 className="card-title pt-4">
-                            Nome: {dores.name}, Descrição: {dores.desc}, Data:{" "}
-                            {format(new Date(dores.data), "dd/MM/yyyy")}
+                            Nome: {dores.name}, Descrição: {dores.desc}, Data:
+                            {dores.data
+                              .split("T")[0]
+                              .split("-")
+                              .reverse()
+                              .join("/")}
                           </h6>
                         )}
                         <div className="d-flex justify-content-end">

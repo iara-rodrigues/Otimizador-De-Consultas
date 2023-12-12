@@ -1,7 +1,17 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 
-function navBarComponent() {
-  return (
+function NavBarComponent() {
+  const isLogged = localStorage.getItem("token");
+  //const hasToken = isLogged && new Date(localStorage.getItem("expiry")) > new Date();
+  const [isLoggedIn, setIsLoggedIn] = useState(isLogged ? true : false);
+
+  const handleLogout = (event: React.MouseEvent<HTMLElement>) => {
+    event.preventDefault();
+    setIsLoggedIn(false);
+    localStorage.removeItem("token");
+  };
+  return isLoggedIn ? (
     <header
       className="site-header sticky-top py-3"
       style={{ backgroundColor: "#ADD8E6" }}
@@ -51,15 +61,18 @@ function navBarComponent() {
         >
           Estatísticas Dor
         </Link>
-      </nav>
 
-      {/* <Link
-        to="/addMedicine"
-        className="py-2 d-none d-md-inline-block text-dark text-decoration-none"
-      >
-        Estatísticas Remédio
-      </Link> */}
+        <button
+          type="button"
+          onClick={(event) => handleLogout(event)}
+          className="btn btn-outline-danger mt-1"
+        >
+          Sair
+        </button>
+      </nav>
     </header>
+  ) : (
+    <Navigate to="/login" replace />
   );
 }
-export default navBarComponent;
+export default NavBarComponent;

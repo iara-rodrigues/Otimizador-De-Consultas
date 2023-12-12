@@ -1,8 +1,16 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import Remedio from "./Remedio";
-//import validator from "validator";
 
-const RegisterMedicine = new mongoose.Schema({
+export interface RegisterMedicineModel extends Document {
+  name: string;
+  dose: string;
+  motivo: string;
+  data: Date;
+  indicacao: Boolean;
+  user: Schema.Types.ObjectId | string;
+}
+
+const RegisterMedicineSchema = new mongoose.Schema({
   name: {
     //FK id remedio
     type: String,
@@ -25,6 +33,12 @@ const RegisterMedicine = new mongoose.Schema({
     type: Boolean,
     required: false,
   },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
 });
 
-export default mongoose.model("RegisterMedicine", RegisterMedicine);
+const RegisterMedicine = mongoose.model<RegisterMedicineModel>(
+  "RegisterMedicine",
+  RegisterMedicineSchema
+);
+
+export default RegisterMedicine;

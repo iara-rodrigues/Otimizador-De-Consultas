@@ -1,4 +1,4 @@
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import addMedicine from "./components/addMedicine";
 import addPain from "./components/addPain";
 import home from "./components/home";
@@ -7,11 +7,14 @@ import registerPain from "./components/registerPain";
 import addUser from "./components/addUser";
 import estMedicine from "./components/estMedicine";
 import estDor from "./components/estPain";
+import Login from "./components/login";
 
 const router = () => {
   return (
     <Routes>
+      <Route path="/login" element={Login()} />
       <Route path="/addUser" element={addUser()} />
+
       <Route path="/" element={home()} />
       <Route path="/addMedicine" element={addMedicine()} />
       <Route path="/addPain" element={addPain()} />

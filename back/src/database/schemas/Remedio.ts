@@ -1,12 +1,20 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
-const Remedio = new mongoose.Schema({
+export interface RemedioModel extends Document {
+  name: string;
+  user: Schema.Types.ObjectId | string;
+}
+
+const RemedioSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
     unique: true,
     lowercase: true,
   },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
 });
 
-export default mongoose.model("Remedio", Remedio);
+const Remedio = mongoose.model<RemedioModel>("Remedio", RemedioSchema);
+
+export default Remedio;

@@ -4,10 +4,11 @@ import Medicine from "../database/schemas/RegisterMedicine";
 class RegisterMedicineController {
   async find(request: Request, response: Response) {
     try {
-      const medicines = await Medicine.find();
+      const { userId } = request.params;
+      const medicines = await Medicine.find({ user: userId });
       return response.json(medicines);
     } catch (error) {
-      return response.status(500).send({
+      return response.status(404).send({
         error: "Select failed",
         message: error,
       });
@@ -15,23 +16,24 @@ class RegisterMedicineController {
   }
 
   async create(request: Request, response: Response) {
+    const { userId } = request.params;
     const { name, dose, motivo, data, indicacao } = request.body;
 
     try {
-      const registrationExists = await Medicine.findOne({
-        name,
-        dose,
-        motivo,
-        data,
-        indicacao,
-      });
+      // const registrationExists = await Medicine.findOne({
+      //   name,
+      //   dose,
+      //   motivo,
+      //   data,
+      //   indicacao,
+      // });
 
-      if (registrationExists) {
-        return response.status(400).json({
-          error: "Ooops",
-          message: "Medicine registration already exists",
-        });
-      }
+      // if (registrationExists) {
+      //   return response.status(400).json({
+      //     error: "Ooops",
+      //     message: "Medicine registration already exists",
+      //   });
+      // }
 
       const medicine = await Medicine.create({
         name,
@@ -39,11 +41,12 @@ class RegisterMedicineController {
         motivo,
         data,
         indicacao,
+        user: userId,
       });
 
       return response.json(medicine);
     } catch (error) {
-      return response.status(500).send({
+      return response.status(400).send({
         error: "Registration failed",
         message: error,
       });
@@ -65,7 +68,7 @@ class RegisterMedicineController {
       const medicine = await Medicine.deleteOne({ _id });
       return response.json({ medicine });
     } catch (error) {
-      return response.status(500).send({
+      return response.status(400).send({
         error: "Delete failed",
         message: error,
       });
@@ -115,7 +118,7 @@ class RegisterMedicineController {
 
       return response.json(medicine);
     } catch (error) {
-      return response.status(500).send({
+      return response.status(400).send({
         error: "Update failed",
         message: error,
       });
@@ -123,9 +126,10 @@ class RegisterMedicineController {
   }
 
   async findEstatistic(request: Request, response: Response) {
-    const { dataInicio, dataFinal } = request.params;
+    const { userId, dataInicio, dataFinal } = request.params;
     try {
       const medicines = await Medicine.find({
+        user: userId,
         data: {
           $gte: dataInicio,
           $lte: dataFinal,
@@ -161,7 +165,7 @@ class RegisterMedicineController {
 
       return response.json(objetos);
     } catch (error) {
-      return response.status(500).send({
+      return response.status(404).send({
         error: "Select failed",
         message: error,
       });
